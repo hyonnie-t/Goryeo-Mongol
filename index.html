@@ -790,8 +790,8 @@ submitEndingBtn.addEventListener("click", async () => {
       원종분기: p1Branch,
       삼별초분기: p2Branch,
       강화조건분류: condChoices,
-      1차시판단불러옴: !!PRIOR_REFLECTION,
-      1차시임시메모: PRIOR_REFLECTION ? "" : priorFallbackText
+      "1차시판단불러옴": !!PRIOR_REFLECTION,
+      "1차시임시메모": PRIOR_REFLECTION ? "" : priorFallbackText
     }),
     choiceSummary: choiceSummary,
     diffSummary: diffSummary,
