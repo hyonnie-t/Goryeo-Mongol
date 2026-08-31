@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>원종의 협상, 삼별초의 항쟁</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#e9dfc3;
+    --ink:#241f17;
+    --sub:#6c604a;
+    --navy:#1c2740;
+    --navy-dark:#101728;
+    --ochre:#a97a35;
+    --ochre-dark:#7c581f;
+    --ochre-pale:#f1e6c8;
+    --seal:#8a3226;
+    --seal-pale:#f3ddd3;
+    --line:#d6c496;
+    --card:#fbf6e6;
+    --night:#131a2b;
+    --night-card:#1c2740;
+    --night-line:#324067;
+    --kakao:#fee500;
+    --kakao-ink:#3c2b00;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Noto Sans KR","Pretendard","Malgun Gothic",sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    font-size:17px;
+    line-height:1.65;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .serif{font-family:"Noto Serif KR",serif;}
+
+  .header{
+    background:linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 100%);
+    color:#fff; padding:24px 20px 20px; text-align:center;
+  }
+  .header .eyebrow{font-size:13px; opacity:.75; font-weight:700; letter-spacing:.3px;}
+  .header h1{margin:8px 0 6px; font-size:20.5px; font-weight:900; font-family:"Noto Serif KR",serif; line-height:1.4;}
+  .header p{margin:0; font-size:13.5px; opacity:.8;}
+  .part-tabs{display:flex; justify-content:center; gap:8px; margin-top:14px;}
+  .part-tab{
+    font-size:12.5px; font-weight:800; padding:5px 12px; border-radius:100px;
+    background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.55);
+  }
+  .part-tab.on{background:var(--ochre); color:#2a1c05;}
+
+  .wrap{max-width:640px; margin:0 auto; padding:18px 16px 90px;}
+  .screen{display:none;}
+  .screen.active{display:block; animation:fadeUp .35s ease;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .observer-banner{
+    display:none; background:var(--navy-dark); color:#e8dcc0; text-align:center;
+    font-size:12.5px; font-weight:700; padding:8px 14px; position:sticky; top:0; z-index:15;
+    border-bottom:1px solid var(--night-line);
+  }
+  .observer-banner.show{display:block;}
+
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:22px 20px; margin-bottom:16px; box-shadow:0 3px 14px rgba(36,31,23,0.08);
+  }
+  .badge-chip{
+    display:inline-block; background:var(--ochre-pale); color:var(--ochre-dark);
+    font-size:13px; font-weight:800; padding:5px 12px; border-radius:100px; margin-bottom:12px;
+  }
+  .badge-chip.warn{background:var(--seal-pale); color:var(--seal);}
+  h2{font-size:19px; margin:0 0 12px; font-weight:900; font-family:"Noto Serif KR",serif; line-height:1.45;}
+  h3{font-size:15px; margin:0 0 8px; font-weight:800; color:var(--ochre-dark);}
+  p{margin:0 0 10px;}
+  .sub{color:var(--sub); font-size:14.5px;}
+
+  label{display:block; font-weight:700; font-size:14.5px; margin:14px 0 6px;}
+  input[type=text]{
+    width:100%; padding:14px 16px; font-size:17px;
+    border:2px solid var(--line); border-radius:12px; background:#fffdf6; min-height:48px;
+  }
+  input:focus{outline:none; border-color:var(--ochre);}
+  textarea{
+    width:100%; min-height:110px; padding:14px 16px; font-size:16px;
+    border:2px solid var(--line); border-radius:12px; background:#fffdf6;
+    resize:vertical; font-family:inherit; line-height:1.55;
+  }
+  textarea:focus{outline:none; border-color:var(--ochre);}
+  textarea[readonly]{background:#f1ead4; color:#4a4130;}
+
+  .btn{
+    display:block; width:100%; padding:15px 20px; font-size:16.5px; font-weight:800;
+    border:none; border-radius:12px; cursor:pointer; min-height:50px; margin-top:14px;
+    transition:transform .1s ease;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--ochre); color:#fff; box-shadow:0 4px 12px rgba(169,122,53,0.35);}
+  .btn-primary:disabled{background:#cfc4a4; color:#fff; cursor:not-allowed; box-shadow:none;}
+  .btn-outline{background:transparent; color:var(--ochre-dark); border:2px solid var(--ochre);}
+  .btn-seal{background:var(--seal); color:#fff; box-shadow:0 4px 12px rgba(138,50,38,0.35);}
+
+  /* ── 밤 장면(상황 카드 · 분기 선택) ── */
+  .night-scene{
+    background:var(--night); color:#e8e2cf; border-radius:18px; padding:28px 22px;
+    margin-bottom:16px; box-shadow:0 8px 26px rgba(19,26,43,0.4); text-align:center;
+  }
+  .night-scene .yr{font-size:13px; font-weight:800; color:var(--ochre); letter-spacing:.5px; margin-bottom:10px;}
+  .night-scene h2{color:#fff; font-size:20px;}
+  .night-scene p{color:#cbc4ac; font-size:15.5px; text-align:left;}
+  .night-scene .btn-primary{background:var(--ochre);}
+
+  .night-card{
+    background:var(--night-card); border:1px solid var(--night-line); border-radius:16px;
+    padding:22px 20px; margin-bottom:16px; color:#e8e2cf;
+  }
+  .night-card h2{color:#fff;}
+  .night-card p{color:#cbc4ac;}
+  .night-card .sub{color:#a49c85;}
+  .virtual-tag{
+    display:inline-flex; align-items:center; gap:6px; background:#3a3a3a; color:#e2e2e2;
+    font-size:12.5px; font-weight:800; padding:5px 12px; border-radius:100px; margin-bottom:10px;
+  }
+  .real-tag{
+    display:inline-flex; align-items:center; gap:6px; background:var(--ochre); color:#2a1c05;
+    font-size:12.5px; font-weight:800; padding:5px 12px; border-radius:100px; margin-bottom:10px;
+  }
+
+  /* ── 선택지 ── */
+  .opt-list{display:flex; flex-direction:column; gap:10px; margin:14px 0 4px;}
+  .opt-btn{
+    text-align:left; background:#232f4d; border:2px solid #33436b; border-radius:14px;
+    padding:14px 16px; font-size:15.5px; font-weight:700; color:#e8e2cf;
+    cursor:pointer; min-height:52px; display:flex; align-items:center; gap:10px;
+  }
+  .opt-btn .opt-mark{
+    width:24px; height:24px; border-radius:50%; border:2px solid #4a5c86;
+    flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; color:#fff;
+  }
+  .opt-btn.selected{border-color:var(--ochre); background:#3a2f16;}
+  .opt-btn.selected .opt-mark{border-color:var(--ochre); background:var(--ochre); color:#2a1c05;}
+  .opt-btn .opt-flag{
+    margin-left:auto; font-size:11px; font-weight:800; padding:2px 8px; border-radius:100px;
+    background:#454545; color:#ddd; flex-shrink:0;
+  }
+  .opt-btn .opt-flag.real{background:var(--ochre); color:#2a1c05;}
+
+  /* ── 결과 박스: 실제 역사(따뜻한 톤) vs 가상(회색조) ── */
+  .result-box{
+    border-radius:14px; padding:18px 18px; margin:14px 0; font-size:15px; line-height:1.7;
+  }
+  .result-real{background:var(--ochre-pale); color:#3c2c0d; border:1px solid #dcc48a;}
+  .result-virtual{background:#2c2c2c; color:#d6d6d6; border:1px dashed #565656;}
+  .result-box b{color:inherit;}
+
+  /* ── 카카오톡 스타일 말풍선 ── */
+  .kakao-row{margin:16px 0;}
+  .kakao-name{font-size:12.5px; font-weight:800; color:#a49c85; margin:0 0 4px 46px;}
+  .kakao-bubble-wrap{display:flex; align-items:flex-end; gap:8px;}
+  .kakao-avatar{
+    width:38px; height:38px; border-radius:50%; background:var(--ochre); color:#2a1c05;
+    display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px; flex-shrink:0;
+  }
+  .kakao-bubble{
+    background:var(--kakao); color:var(--kakao-ink); padding:13px 15px; border-radius:4px 16px 16px 16px;
+    font-size:15px; line-height:1.65; max-width:78%; font-family:"Noto Serif KR",serif;
+  }
+  .kakao-cite{font-size:12px; color:#a49c85; margin:6px 0 0 46px;}
+
+  /* ── 강화조건 카드 분류 ── */
+  .cond-card{
+    background:#fffdf6; border:2px solid var(--line); border-radius:14px; padding:16px 16px 14px;
+    margin-bottom:12px;
+  }
+  .cond-card .cond-text{font-size:15px; font-weight:700; margin-bottom:10px;}
+  .toggle-row{display:flex; gap:8px;}
+  .toggle-btn{
+    flex:1; text-align:center; background:#fff; border:2px solid var(--line); border-radius:12px;
+    padding:12px 8px; font-size:13.5px; font-weight:800; color:var(--ink); cursor:pointer; min-height:48px;
+  }
+  .toggle-btn.selected{border-color:var(--ochre); background:var(--ochre-pale); color:var(--ochre-dark);}
+  .toggle-btn.selected.danger{border-color:var(--seal); background:var(--seal-pale); color:var(--seal);}
+
+  /* ── 학계 논쟁 카드 ── */
+  .debate-row{display:flex; flex-direction:column; gap:10px; margin:14px 0;}
+  .debate-card{border-radius:12px; padding:14px 16px; font-size:14.5px; line-height:1.6;}
+  .debate-card.p1{background:#eef1f8; border-left:4px solid var(--navy);}
+  .debate-card.p2{background:var(--seal-pale); border-left:4px solid var(--seal);}
+  .debate-card b{display:block; font-size:13px; margin-bottom:4px;}
+
+  .hint-toggle{
+    display:inline-flex; align-items:center; gap:6px;
+    background:none; border:1px solid var(--line); color:var(--sub);
+    font-size:13px; font-weight:700; padding:8px 14px; border-radius:100px;
+    cursor:pointer; margin:10px 0 0;
+  }
+  .hint-box{
+    display:none; background:#f1ead4; border-radius:12px; padding:12px 14px;
+    font-size:14px; color:var(--sub); margin-top:8px; line-height:1.6;
+  }
+  .hint-box.open{display:block;}
+
+  /* ── 1차시 판단 불러오기 카드 ── */
+  .prior-card{background:#fffdf6; border:1px dashed var(--ochre); border-radius:12px; padding:14px 16px; margin-bottom:6px;}
+  .prior-card .prior-label{font-size:12.5px; font-weight:800; color:var(--ochre-dark); margin-bottom:6px;}
+  .prior-card .prior-text{font-size:14.5px; font-style:italic; color:#4a4130;}
+
+  /* ── 엔딩 비교 표 ── */
+  .compare-table{width:100%; border-collapse:collapse; margin:10px 0 6px; font-size:14px;}
+  .compare-table th, .compare-table td{padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top;}
+  .compare-table th{color:var(--sub); font-weight:800; font-size:12.5px;}
+  .compare-table td.match{color:var(--ochre-dark); font-weight:800;}
+  .compare-table td.diff{color:var(--seal); font-weight:800;}
+
+  .preview-banner{
+    background:var(--seal); color:#fff; text-align:center; font-size:13px; font-weight:800;
+    padding:8px; position:sticky; top:0; z-index:20;
+  }
+
+  @media (min-width:760px){ body{font-size:17.5px;} }
+</style>
+</head>
+<body>
+
+<div class="preview-banner" id="previewBanner" style="display:none;">🔍 미리보기 모드 — 제출해도 기록에 안 남아요</div>
+<div class="observer-banner" id="observerBanner">🎭 이 인물은 상상으로 만든 가상의 관찰자입니다</div>
+
+<div class="header">
+  <div class="eyebrow">3학년 한국사 · 몽골의 간섭과 고려의 개혁 · 2차시 활동2</div>
+  <h1 class="serif">원종의 협상, 삼별초의 항쟁</h1>
+  <p>선택 시뮬레이션 · 가상의 관찰자 시점으로 따라가보기</p>
+  <div class="part-tabs" id="partTabs">
+    <span class="part-tab" id="tabP1">1부 · 원종의 협상</span>
+    <span class="part-tab" id="tabP2">2부 · 삼별초의 항쟁</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 화면: 로그인 -->
+  <div class="screen active" id="screen-start">
+    <div class="card">
+      <span class="badge-chip">시작하기</span>
+      <h2>이번엔 가상의 관찰자 시점으로 두 갈래 사건을 따라가볼 거예요</h2>
+      <p class="sub">원종의 협상(1부)과 삼별초의 항쟁(2부), 두 이야기 속에서 갈림길을 만나게 돼요.
+      실존 인물이 아니라, 상상으로 만든 관찰자의 눈으로 지켜보는 활동이에요.</p>
+
+      <label>학번</label>
+      <input type="text" id="studentId" inputmode="numeric" maxlength="5" placeholder="예: 30501">
+      <label>이름</label>
+      <input type="text" id="studentName" placeholder="이름을 입력하세요">
+
+      <button class="btn btn-primary" id="startBtn" disabled>이야기 시작하기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 도입 (1차시 판단 불러오기 + 1부 관찰자 소개) -->
+  <div class="screen" id="screen-intro">
+    <div class="card" id="priorWrapCard">
+      <span class="badge-chip">지난 시간</span>
+      <h2>1차시에 네가 썼던 판단</h2>
+      <div id="priorArea"></div>
+    </div>
+
+    <div class="night-card">
+      <span class="virtual-tag">🎭 상상 속 인물</span>
+      <h2>1부 · 나는 원종을 수행하는 이름 없는 하급 관리다</h2>
+      <p>실존 인물이 아니라, 상상으로 만든 관찰자야. 이 관찰자의 눈으로, 1259년 태자(훗날 원종)가
+      몽골로 향했던 협상 길을 따라가볼 거야.</p>
+      <p class="sub">실존 인물(원종, 쿠빌라이)의 대사는 사료에 남아있는 것만 그대로 옮겨서 보여줄게.</p>
+    </div>
+
+    <button class="btn btn-primary" id="toP1SituationBtn">1부 시작하기</button>
+  </div>
+
+  <!-- 화면: 1부 상황 카드 -->
+  <div class="screen" id="screen-p1-situation">
+    <div class="night-scene">
+      <div class="yr">1259년</div>
+      <h2>태자, 몽골로 향하다</h2>
+      <p>고려는 몽골과의 오랜 전쟁을 끝내기 위해 태자(훗날 원종)를 몽골에 사신으로 보내기로 했다.
+      태자는 협상을 위해 먼 길을 떠났다.</p>
+      <p>그런데 길 위에서, 뜻밖의 소식이 들려왔다. <b>몽골의 칸(뭉케)이 원정 중 사망했다는 것.</b>
+      몽골 안에서는 다음 칸의 자리를 두고 후계 다툼이 시작되려 하고 있었다.</p>
+      <button class="btn btn-primary" id="toP1BranchBtn">계속하기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 1부 분기 선택 -->
+  <div class="screen" id="screen-p1-branch">
+    <div class="night-card">
+      <span class="virtual-tag">⏸ 갈림길 · 가상 시나리오 포함</span>
+      <h2>태자는 누구를 찾아가야 할까?</h2>
+      <p>후계 다툼의 유력한 두 후보가 있다. 몽골 각지에 흩어져 있던 두 세력 중,
+      태자는 어느 쪽을 먼저 찾아갈지 정해야 한다.</p>
+      <div class="opt-list" id="p1OptList">
+        <button class="opt-btn" data-opt="A">
+          <span class="opt-mark"></span><span>유력한 후보였던 <b>쿠빌라이</b>를 찾아간다</span>
+          <span class="opt-flag real">실제 역사</span>
+        </button>
+        <button class="opt-btn" data-opt="B">
+          <span class="opt-mark"></span><span>경쟁자였던 <b>아리크부카</b> 진영을 찾아간다</span>
+          <span class="opt-flag">만약에 (가상)</span>
+        </button>
+      </div>
+      <button class="btn btn-seal" id="p1ConfirmBtn" disabled>선택 확인하기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 1부 결과 -->
+  <div class="screen" id="screen-p1-result">
+    <div class="card">
+      <span class="badge-chip" id="p1ResultBadge">결과</span>
+      <h2 id="p1ResultTitle"></h2>
+      <div id="p1ResultBody"></div>
+      <button class="btn btn-primary" id="toP1CondBtn">계속하기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 1부 - 강화 조건 분류 -->
+  <div class="screen" id="screen-p1-conditions">
+    <div class="card">
+      <span class="badge-chip">협상의 결과</span>
+      <h2>강화 조건, 무엇을 지켰고 무엇을 못 지켰을까?</h2>
+      <p class="sub">몽골과의 강화(화친) 조건 중 일부야. 각 조건이 "독립을 지킨 부분"에 가까운지,
+      "간섭을 완전히 피하지는 못한 부분"에 가까운지 골라보자. 정답은 없어 — 네 생각을 기록하는 거야.</p>
+      <div id="condList"></div>
+      <button class="btn btn-primary" id="toP2IntroBtn" disabled>2부로 넘어가기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 2부 도입 -->
+  <div class="screen" id="screen-p2-intro">
+    <div class="night-card">
+      <span class="virtual-tag">🎭 상상 속 인물</span>
+      <h2>2부 · 나는 삼별초 소속의 이름 없는 병사다</h2>
+      <p>이번엔 관찰자가 바뀐다. 실존 인물이 아니라, 상상으로 만든 삼별초 소속 병사의
+      눈으로 이어지는 이야기를 지켜볼 거야.</p>
+    </div>
+
+    <div class="card">
+      <h3>여기까지의 사실</h3>
+      <p class="sub">강화가 이어지며 몽골과의 관계가 정리되자, 고려 조정은 강화도에서
+      개경으로 다시 수도를 옮기기로(개경 환도) 결정했어. 삼별초는 이 결정에 반대하며
+      들고 일어났어(봉기).</p>
+      <p class="sub">삼별초는 원래 최우가 만든 야별초에서 시작된 부대야. 치안을 유지한다는
+      명목이었지만, 조정에 저항하는 백성을 단속하는 등 정권을 유지하는 수단의 성격도 있었어.</p>
+      <button class="hint-toggle" id="p2MoreToggle">🔍 더 알아보기</button>
+      <div class="hint-box" id="p2MoreBox">삼별초 안에서도 사정은 다 같지 않았어. 그중 신의군은
+      몽골과의 전쟁에서 가족을 잃은 사람들이 주축이었다는 지적도 있어 — 무신정권과의 개인적 연결이
+      상대적으로 약했을 수 있다는 뜻이야. (참고 사항)</div>
+    </div>
+
+    <div class="card">
+      <h3>학계에서 논쟁 중인 지점 · 정답 없음</h3>
+      <div class="debate-row">
+        <div class="debate-card p1"><b>관점 1</b>몽골에 끝까지 저항한 민족적 항쟁이었다.</div>
+        <div class="debate-card p2"><b>관점 2</b>무신정권이 무너지며 자신들의 기반을 잃을 위기에 처한
+        삼별초 자신의 이해관계도 함께 작용했다.</div>
+      </div>
+      <p class="sub">둘 중 하나가 정답인 게 아니라, 역사학자들 사이에서도 해석이 갈리는 지점이야.</p>
+    </div>
+
+    <button class="btn btn-primary" id="toP2SituationBtn">2부 시작하기</button>
+  </div>
+
+  <!-- 화면: 2부 상황 카드 -->
+  <div class="screen" id="screen-p2-situation">
+    <div class="night-scene">
+      <div class="yr">개경, 어느 날</div>
+      <h2>개경에서 환도 명령이 도착했다</h2>
+      <p>조정으로부터 명령이 내려왔다. <b>강화도에서 개경으로 돌아가라는 것.</b>
+      삼별초 진영에는 무거운 침묵이 흘렀다.</p>
+      <button class="btn btn-primary" id="toP2BranchBtn">계속하기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 2부 분기 선택 -->
+  <div class="screen" id="screen-p2-branch">
+    <div class="night-card">
+      <span class="virtual-tag">⏸ 갈림길 · 가상 시나리오 포함</span>
+      <h2>삼별초는 어떻게 해야 할까?</h2>
+      <div class="opt-list" id="p2OptList">
+        <button class="opt-btn" data-opt="A">
+          <span class="opt-mark"></span><span>환도 명령에 <b>따른다</b></span>
+          <span class="opt-flag">만약에 (가상)</span>
+        </button>
+        <button class="opt-btn" data-opt="B">
+          <span class="opt-mark"></span><span><b>봉기</b>한다</span>
+          <span class="opt-flag real">실제 역사</span>
+        </button>
+      </div>
+      <button class="btn btn-seal" id="p2ConfirmBtn" disabled>선택 확인하기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 2부 결과 -->
+  <div class="screen" id="screen-p2-result">
+    <div class="card">
+      <span class="badge-chip" id="p2ResultBadge">결과</span>
+      <h2 id="p2ResultTitle"></h2>
+      <div id="p2ResultBody"></div>
+      <button class="btn btn-primary" id="toEndingBtn">마무리하러 가기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 엔딩 -->
+  <div class="screen" id="screen-ending">
+    <div class="card">
+      <span class="badge-chip">비교해보기</span>
+      <h2>네가 고른 선택 vs 실제 역사</h2>
+      <table class="compare-table" id="compareTable"></table>
+    </div>
+
+    <div class="card">
+      <span class="badge-chip">마무리 글쓰기</span>
+      <h2>왜 그렇게 판단했어?</h2>
+      <p class="sub">실제 역사와 다른 선택을 했다면, 무엇이 아쉬웠는지도 함께 써보자.</p>
+      <textarea id="endingInput" placeholder="예: 나는 봉기를 선택했는데, 실제로도 삼별초는 봉기했다. 왜냐하면..."></textarea>
+      <div id="priorCompareArea"></div>
+      <button class="btn btn-primary" id="submitEndingBtn" disabled>제출하기</button>
+    </div>
+  </div>
+
+  <!-- 화면: 완료 -->
+  <div class="screen" id="screen-done">
+    <div class="card">
+      <span class="badge-chip">제출 완료</span>
+      <h2 id="doneGreeting">수고했어요!</h2>
+      <p class="sub">오늘 두 갈래 이야기 속에서 내린 선택과 그 이유를 잘 기록했어요.
+      다음 시간에 이어서 이야기해봐요.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+ * CONFIG
+ * ════════════════════════════════════════════════════════ */
+const CONFIG = {
+  SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbyXSjCfWY_HiZFqW_OBR-FQDoIfF1z_STqyKWUI31MacHeY3u7hbirFSFDvW-5yuUHaJQ/exec",
+  GAME_NAME: "몽골2차시_선택시뮬레이션",
+  LESSON1_GAME_NAME: "choe_regime_judgment"
+  // 교사용 제출 현황은 통합 포털 대시보드에서 백엔드(teacherGet_)를 직접 호출해서 보여줌 —
+  // 이 웹앱 안에는 교사 토큰을 넣지 않음.
+};
+
+/* 역사 정확성 메모 (2026-08-31 핸드오프 문서 기준):
+ * - 1부(원종의 협상): 1259년 태자(훗날 원종)의 몽골행, 도중 몽케 칸 사망과 후계 다툼(쿠빌라이 vs
+ *   아리크부카) 발생, 태자가 쿠빌라이를 찾아간 것은 실제 역사. 아리크부카 쪽 분기는 100% 가상 시나리오 —
+ *   화면에 "만약에(가상)"로 항상 표시함. 가상 분기 결과 서술은 "~했을 가능성이 있다" 정도로만 추정하고,
+ *   구체적 사건을 단정하지 않음.
+ * - 쿠빌라이의 발언(카카오톡 말풍선)은 교과서 "한국사와 세계사의 만남" 코너 원문에 근거함
+ *   (핸드오프 문서 TODO#1 기준 "별도 검색 불필요"로 확인됨). 실제 수업 배포 전 교과서 원문과
+ *   한 번 더 대조 권장.
+ * - 강화 조건(5개조/세조구제 관련) 4가지는 핸드오프 문서에 이미 정리된 항목을 그대로 사용 —
+ *   "독립을 지킨 부분/간섭을 못 피한 부분" 분류는 정오 판정 없는 자유 분류 활동.
+ * - 2부(삼별초의 항쟁): 개경 환도 결정 → 삼별초 봉기 → 진도 → 제주 → 1273년 진압은 실제 역사.
+ *   환도 명령에 순응하는 분기는 100% 가상 시나리오 — "만약에(가상)"로 항상 표시.
+ * - 삼별초 평가(민족적 항쟁 vs 자기 이해관계)는 학계에서 해석이 갈리는 지점 — 정답 제시 없이
+ *   양쪽 관점을 모두 제시함.
+ * - 실존 인물 1인칭 서술 금지 원칙에 따라, 두 파트 모두 "상상으로 만든 가상의 관찰자" 시점을 사용.
+ */
+
+/* ── 강화 조건 데이터 ── */
+const CONDITIONS = [
+  { id:"c1", label:"고려의 복식(옷차림)과 풍속은 그대로 유지한다" },
+  { id:"c2", label:"몽골 군대는 가을에 물러가고, 고려에 계속 머무르지 않는다" },
+  { id:"c3", label:"다루가치(감시관)를 다시 불러들인다(귀환)" },
+  { id:"c4", label:"개경으로 돌아가는 건(환도) 고려가 힘 닿는 대로 한다" }
+];
+
+/* ── 상태 ── */
+let studentId = "", studentName = "";
+let PREVIEW = false;
+let PRIOR_REFLECTION = null;
+let priorFallbackText = "";
+let p1Branch = null;   // "A" | "B"
+let p2Branch = null;   // "A" | "B"
+let condChoices = {};  // id -> "kept" | "notAvoided"
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function setObserverBanner(show){
+  document.getElementById("observerBanner").classList.toggle("show", !!show);
+}
+function setPartTab(part){
+  document.getElementById("tabP1").classList.toggle("on", part === 1);
+  document.getElementById("tabP2").classList.toggle("on", part === 2);
+}
+
+/* ── 로그인 ── */
+const studentIdEl = document.getElementById("studentId");
+const studentNameEl = document.getElementById("studentName");
+const startBtn = document.getElementById("startBtn");
+function checkStart(){
+  startBtn.disabled = !(studentIdEl.value.trim() && studentNameEl.value.trim());
+}
+[studentIdEl, studentNameEl].forEach(el => el.addEventListener("input", checkStart));
+
+startBtn.addEventListener("click", async () => {
+  studentId = studentIdEl.value.trim();
+  studentName = studentNameEl.value.trim();
+  startBtn.disabled = true;
+  startBtn.textContent = "불러오는 중...";
+
+  PRIOR_REFLECTION = await fetchPriorReflection(studentId, studentName);
+  renderPriorArea();
+
+  startBtn.disabled = false;
+  startBtn.textContent = "이야기 시작하기";
+  setPartTab(1);
+  showScreen("screen-intro");
+});
+
+/* 1차시(choe_regime_judgment) 판단 불러오기 — 통합 포털 백엔드의 학생용 조회(mode=student)를
+ * 그대로 재사용. 이 엔드포인트는 학번+이름만으로 조회 가능한 학생 본인 기록 조회용이라
+ * 별도 백엔드 수정 없이 재사용 가능함 (history26 index.html의 STUDENT_DATA.activities와 동일 구조). */
+async function fetchPriorReflection(sid, name){
+  if (PREVIEW) return null;
+  try{
+    const url = CONFIG.SHEET_WEBAPP_URL
+      + "?mode=student&studentId=" + encodeURIComponent(sid)
+      + "&name=" + encodeURIComponent(name);
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.result !== "success" || !Array.isArray(data.activities)) return null;
+    const found = data.activities.find(a =>
+      String(a.activityId) === CONFIG.LESSON1_GAME_NAME && a.reflection && String(a.reflection).trim()
+    );
+    return found ? String(found.reflection).trim() : null;
+  }catch(e){
+    return null;
+  }
+}
+
+function renderPriorArea(){
+  const host = document.getElementById("priorArea");
+  if (PRIOR_REFLECTION) {
+    host.innerHTML = `<div class="prior-card">
+      <div class="prior-label">1차시 판단</div>
+      <div class="prior-text">${escapeHtml(PRIOR_REFLECTION)}</div>
+    </div>`;
+  } else {
+    host.innerHTML = `
+      <p class="sub">1차시 활동을 아직 안 했다면, 지금 한 줄로 먼저 써보자. (안 써도 계속 진행할 수 있어요)</p>
+      <textarea id="priorFallbackInput" placeholder="예: 강화도 천도는 항전을 위한 선택이었다고 생각해. 왜냐하면..."></textarea>
+    `;
+  }
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+document.getElementById("toP1SituationBtn").addEventListener("click", () => {
+  const fb = document.getElementById("priorFallbackInput");
+  if (fb) priorFallbackText = fb.value.trim();
+  setObserverBanner(true);
+  showScreen("screen-p1-situation");
+});
+
+/* ── 1부: 상황 카드 → 분기 선택 ── */
+document.getElementById("toP1BranchBtn").addEventListener("click", () => showScreen("screen-p1-branch"));
+
+(function setupBranch(listId, confirmId, onConfirm){
+  const list = document.getElementById(listId);
+  const confirmBtn = document.getElementById(confirmId);
+  let selected = null;
+  list.querySelectorAll(".opt-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      list.querySelectorAll(".opt-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selected = btn.dataset.opt;
+      confirmBtn.disabled = false;
+    });
+  });
+  confirmBtn.addEventListener("click", () => onConfirm(selected));
+})("p1OptList", "p1ConfirmBtn", (choice) => {
+  p1Branch = choice;
+  renderP1Result(choice);
+  showScreen("screen-p1-result");
+});
+
+function renderP1Result(choice){
+  const badge = document.getElementById("p1ResultBadge");
+  const title = document.getElementById("p1ResultTitle");
+  const body = document.getElementById("p1ResultBody");
+
+  if (choice === "A") {
+    badge.className = "badge-chip";
+    badge.textContent = "실제 역사";
+    title.textContent = "쿠빌라이를 만나다";
+    body.innerHTML = `
+      <div class="kakao-row">
+        <div class="kakao-name">쿠빌라이</div>
+        <div class="kakao-bubble-wrap">
+          <div class="kakao-avatar">쿠</div>
+          <div class="kakao-bubble">"고려는 만 리나 떨어진 나라이고, 당 태종도 굴복시키지 못했는데,
+          세자가 스스로 왔으니 이는 하늘의 뜻이다."</div>
+        </div>
+        <div class="kakao-cite">출처: 사료 인용(교과서 「한국사와 세계사의 만남」 코너)</div>
+      </div>
+      <div class="result-box result-real">쿠빌라이는 태자가 스스로 찾아온 것을 크게 반겼어.
+      이후 쿠빌라이가 후계 다툼에서 승리했고, 고려와 몽골의 강화(화친)가 성사됐어.</div>
+    `;
+  } else {
+    badge.className = "badge-chip warn";
+    badge.textContent = "가상 시나리오";
+    title.textContent = "만약, 아리크부카를 찾아갔다면";
+    body.innerHTML = `
+      <div class="result-box result-virtual">
+        <b>⚠ 이건 실제로 일어나지 않은 가상의 결말이야.</b><br><br>
+        실제로 태자는 유력한 후보였던 쿠빌라이를 찾아갔어. 만약 경쟁자였던 아리크부카 쪽에
+        줄을 섰다면 어떻게 됐을까? 이후 후계 다툼에서 쿠빌라이가 승리했으니, 지는 쪽에
+        섰던 사람은 정치적으로 불리한 처지에 놓였을 <b>가능성이 있어</b>.
+        다만 이건 실제로 일어나지 않은 일이라, 구체적으로 어떤 일이 벌어졌을지는
+        확인할 수 없어.
+      </div>
+    `;
+  }
+}
+
+document.getElementById("toP1CondBtn").addEventListener("click", () => {
+  renderConditions();
+  showScreen("screen-p1-conditions");
+});
+
+/* ── 1부: 강화 조건 분류 ── */
+function renderConditions(){
+  const host = document.getElementById("condList");
+  host.innerHTML = CONDITIONS.map(c => `
+    <div class="cond-card" data-id="${c.id}">
+      <div class="cond-text">${c.label}</div>
+      <div class="toggle-row">
+        <button class="toggle-btn" data-val="kept">🛡 독립을 지킨 부분</button>
+        <button class="toggle-btn" data-val="notAvoided">🔗 간섭을 못 피한 부분</button>
+      </div>
+    </div>
+  `).join("");
+
+  host.querySelectorAll(".cond-card").forEach(card => {
+    const id = card.dataset.id;
+    card.querySelectorAll(".toggle-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        card.querySelectorAll(".toggle-btn").forEach(b => {
+          b.classList.remove("selected", "danger");
+        });
+        btn.classList.add("selected");
+        if (btn.dataset.val === "notAvoided") btn.classList.add("danger");
+        condChoices[id] = btn.dataset.val;
+        checkConditionsComplete();
+      });
+    });
+  });
+}
+function checkConditionsComplete(){
+  document.getElementById("toP2IntroBtn").disabled = Object.keys(condChoices).length < CONDITIONS.length;
+}
+
+document.getElementById("toP2IntroBtn").addEventListener("click", () => {
+  setPartTab(2);
+  showScreen("screen-p2-intro");
+});
+
+document.getElementById("p2MoreToggle").addEventListener("click", () => {
+  document.getElementById("p2MoreBox").classList.toggle("open");
+});
+
+document.getElementById("toP2SituationBtn").addEventListener("click", () => showScreen("screen-p2-situation"));
+document.getElementById("toP2BranchBtn").addEventListener("click", () => showScreen("screen-p2-branch"));
+
+(function setupBranch(listId, confirmId, onConfirm){
+  const list = document.getElementById(listId);
+  const confirmBtn = document.getElementById(confirmId);
+  let selected = null;
+  list.querySelectorAll(".opt-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      list.querySelectorAll(".opt-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selected = btn.dataset.opt;
+      confirmBtn.disabled = false;
+    });
+  });
+  confirmBtn.addEventListener("click", () => onConfirm(selected));
+})("p2OptList", "p2ConfirmBtn", (choice) => {
+  p2Branch = choice;
+  renderP2Result(choice);
+  showScreen("screen-p2-result");
+});
+
+function renderP2Result(choice){
+  const badge = document.getElementById("p2ResultBadge");
+  const title = document.getElementById("p2ResultTitle");
+  const body = document.getElementById("p2ResultBody");
+
+  if (choice === "B") {
+    badge.className = "badge-chip";
+    badge.textContent = "실제 역사";
+    title.textContent = "봉기, 그리고 항쟁";
+    body.innerHTML = `
+      <div class="result-box result-real">
+      삼별초는 개경 환도 결정에 반발해 봉기했어. 이후 진도로 근거지를 옮겨 몽골에 맞선
+      항쟁을 이어갔고, 관군과 몽골 연합군의 공격으로 진도가 무너지자 다시 제주도로
+      옮겨 저항을 계속했어. 1273년, 결국 진압되며 삼별초의 항쟁은 끝이 났어.
+      </div>
+    `;
+  } else {
+    badge.className = "badge-chip warn";
+    badge.textContent = "가상 시나리오";
+    title.textContent = "만약, 환도 명령에 따랐다면";
+    body.innerHTML = `
+      <div class="result-box result-virtual">
+        <b>⚠ 이건 실제로 일어나지 않은 가상의 상황이야.</b><br><br>
+        실제로 삼별초는 환도 명령에 반발해 봉기했어. 만약 명령을 그대로 따랐다면,
+        삼별초라는 독자적인 군사 조직은 해체 수순을 밟았을 <b>가능성이 있어</b>.
+        다만 이것도 실제로 일어나지 않은 일이라, 구체적으로 확인할 수는 없어.
+      </div>
+    `;
+  }
+}
+
+document.getElementById("toEndingBtn").addEventListener("click", () => {
+  setObserverBanner(false);
+  renderCompareTable();
+  renderPriorCompareArea();
+  showScreen("screen-ending");
+});
+
+/* ── 엔딩: 비교 표 ── */
+function renderCompareTable(){
+  const rows = [
+    { label:"원종의 협상", mine: p1Branch === "A" ? "쿠빌라이를 찾아감" : "아리크부카 진영을 찾아감(가상)", real:"쿠빌라이를 찾아감", match: p1Branch === "A" },
+    { label:"삼별초의 항쟁", mine: p2Branch === "B" ? "봉기함" : "환도 명령에 따름(가상)", real:"봉기함", match: p2Branch === "B" }
+  ];
+  const host = document.getElementById("compareTable");
+  host.innerHTML = `
+    <tr><th>갈림길</th><th>내 선택</th><th>실제 역사</th></tr>
+    ${rows.map(r => `<tr>
+      <td>${r.label}</td>
+      <td class="${r.match ? "match" : "diff"}">${r.mine}</td>
+      <td>${r.real}</td>
+    </tr>`).join("")}
+  `;
+}
+
+function renderPriorCompareArea(){
+  const host = document.getElementById("priorCompareArea");
+  if (PRIOR_REFLECTION) {
+    host.innerHTML = `
+      <label style="margin-top:16px;">1차시 판단이랑 비교해서 생각이 바뀐 점 있어? (선택)</label>
+      <textarea id="priorCompareInput" placeholder="바뀐 점이 없다면 안 써도 괜찮아요"></textarea>
+    `;
+  } else {
+    host.innerHTML = "";
+  }
+}
+
+/* ── 최종 제출 ── */
+const endingInput = document.getElementById("endingInput");
+const submitEndingBtn = document.getElementById("submitEndingBtn");
+endingInput.addEventListener("input", () => {
+  submitEndingBtn.disabled = endingInput.value.trim().length < 40;
+});
+
+submitEndingBtn.addEventListener("click", async () => {
+  submitEndingBtn.disabled = true;
+  submitEndingBtn.textContent = "제출 중...";
+
+  const mainReflection = endingInput.value.trim();
+  const compareEl = document.getElementById("priorCompareInput");
+  const compareText = compareEl ? compareEl.value.trim() : "";
+  const reflection = mainReflection + (compareText ? `\n\n[1차시 판단과 비교] ${compareText}` : "");
+
+  const choiceSummary = `${p1Branch === "A" ? "쿠빌라이 선택" : "아리크부카 선택(가상)"} / ${p2Branch === "B" ? "봉기 선택" : "환도 순응 선택(가상)"}`;
+  const diffSummary = `원종 분기: ${p1Branch === "A" ? "실제 역사와 동일" : "실제 역사와 다름(가상)"} · 삼별초 분기: ${p2Branch === "B" ? "실제 역사와 동일" : "실제 역사와 다름(가상)"}`;
+
+  const payload = {
+    gameName: CONFIG.GAME_NAME,
+    studentId: studentId,
+    studentName: studentName,
+    choicesJson: JSON.stringify({
+      원종분기: p1Branch,
+      삼별초분기: p2Branch,
+      강화조건분류: condChoices,
+      1차시판단불러옴: !!PRIOR_REFLECTION,
+      1차시임시메모: PRIOR_REFLECTION ? "" : priorFallbackText
+    }),
+    choiceSummary: choiceSummary,
+    diffSummary: diffSummary,
+    reflection: reflection
+  };
+
+  if (!PREVIEW) {
+    try {
+      if (CONFIG.SHEET_WEBAPP_URL && CONFIG.SHEET_WEBAPP_URL.indexOf("http") === 0) {
+        await fetch(CONFIG.SHEET_WEBAPP_URL, { method:"POST", body: JSON.stringify(payload) });
+      }
+    } catch (err) {
+      console.log("전송 실패(콘솔 확인용):", err);
+    }
+  } else {
+    console.log("[미리보기] 실제 전송 안 함:", payload);
+  }
+
+  document.getElementById("doneGreeting").textContent = `${studentName}, 수고했어요!`;
+  showScreen("screen-done");
+});
+
+/* ── URL 파라미터 자동 채움 / 미리보기 모드 ──
+ * 주의: 위쪽 const(studentIdEl 등)를 참조하므로, 반드시 그 선언과 이벤트 바인딩이
+ * 모두 끝난 뒤(스크립트 맨 아래)에 호출해야 함. 안 그러면 TDZ 에러로 전체가 멈춤. */
+function init(){
+  const params = new URLSearchParams(location.search);
+  const sid = params.get("sid") || "";
+  const name = params.get("name") || "";
+  if (sid) studentIdEl.value = sid;
+  if (name) studentNameEl.value = name;
+  checkStart();
+
+  if (params.get("preview") === "1") {
+    PREVIEW = true;
+    document.getElementById("previewBanner").style.display = "block";
+    if (!sid) studentIdEl.value = "preview";
+    if (!name) studentNameEl.value = "교사미리보기";
+    checkStart();
+  }
+}
+
+/* ── 진입점: 모든 선언·바인딩이 끝난 뒤 마지막에 실행 ── */
+init();
+</script>
+
+</body>
+</html>
