@@ -92,6 +92,10 @@
   textarea:focus{outline:none; border-color:var(--ochre);}
   textarea[readonly]{background:#f1ead4; color:#4a4130;}
 
+  .charcount{font-size:12.5px; color:var(--sub); text-align:right; margin-top:4px;}
+  .charcount.ok{color:var(--ochre-dark); font-weight:700;}
+  .charcount.over{color:var(--seal);}
+
   .btn{
     display:block; width:100%; padding:15px 20px; font-size:16.5px; font-weight:800;
     border:none; border-radius:12px; cursor:pointer; min-height:50px; margin-top:14px;
@@ -142,11 +146,6 @@
   }
   .opt-btn.selected{border-color:var(--ochre); background:#3a2f16;}
   .opt-btn.selected .opt-mark{border-color:var(--ochre); background:var(--ochre); color:#2a1c05;}
-  .opt-btn .opt-flag{
-    margin-left:auto; font-size:11px; font-weight:800; padding:2px 8px; border-radius:100px;
-    background:#454545; color:#ddd; flex-shrink:0;
-  }
-  .opt-btn .opt-flag.real{background:var(--ochre); color:#2a1c05;}
 
   /* ── 결과 박스: 실제 역사(따뜻한 톤) vs 가상(회색조) ── */
   .result-box{
@@ -215,6 +214,30 @@
   .compare-table td.match{color:var(--ochre-dark); font-weight:800;}
   .compare-table td.diff{color:var(--seal); font-weight:800;}
 
+  /* ── 사료 다시 보기: 아코디언 (활동1과 동일한 4개 사료 재사용) ── */
+  .review-accordion{margin:4px 0 4px;}
+  .review-item{
+    border:1px solid var(--line); border-radius:10px; margin-bottom:8px;
+    overflow:hidden; background:#fffdf6;
+  }
+  .review-item-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:13px 14px; cursor:pointer; font-weight:800; font-size:14.5px; color:var(--ink);
+    min-height:48px;
+  }
+  .review-item-head .tag{
+    flex:0 0 auto; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:100px; color:#fff;
+  }
+  .review-item-head .tag.red{background:var(--seal);}
+  .review-item-head .tag.teal{background:var(--ochre-dark);}
+  .review-item-head .ttl{flex:1;}
+  .review-item-head .chev{flex:0 0 auto; color:var(--sub); font-size:13px; transition:transform .2s ease;}
+  .review-item.open .review-item-head .chev{transform:rotate(180deg);}
+  .review-item-body{display:none; padding:0 14px 14px;}
+  .review-item.open .review-item-body{display:block;}
+  .review-item-body .quote{font-family:"Noto Serif KR",serif; font-size:14.5px; line-height:1.8; color:var(--ink);}
+  .review-item-body .cite{font-size:12px; color:var(--sub); margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);}
+
   .preview-banner{
     background:var(--seal); color:#fff; text-align:center; font-size:13px; font-weight:800;
     padding:8px; position:sticky; top:0; z-index:20;
@@ -231,7 +254,7 @@
 <div class="header">
   <div class="eyebrow">3학년 한국사 · 몽골의 간섭과 고려의 개혁 · 2차시 활동2</div>
   <h1 class="serif">원종의 협상, 삼별초의 항쟁</h1>
-  <p>선택 시뮬레이션 · 가상의 관찰자 시점으로 따라가보기</p>
+  <p>선택 시뮬레이션</p>
   <div class="part-tabs" id="partTabs">
     <span class="part-tab" id="tabP1">1부 · 원종의 협상</span>
     <span class="part-tab" id="tabP2">2부 · 삼별초의 항쟁</span>
@@ -292,18 +315,15 @@
   <!-- 화면: 1부 분기 선택 -->
   <div class="screen" id="screen-p1-branch">
     <div class="night-card">
-      <span class="virtual-tag">⏸ 갈림길 · 가상 시나리오 포함</span>
+      <span class="virtual-tag">⏸ 갈림길</span>
       <h2>태자는 누구를 찾아가야 할까?</h2>
-      <p>후계 다툼의 유력한 두 후보가 있다. 몽골 각지에 흩어져 있던 두 세력 중,
-      태자는 어느 쪽을 먼저 찾아갈지 정해야 한다.</p>
+      <p>후계를 다투는 두 세력 중, 태자는 누구를 먼저 찾아갈까?</p>
       <div class="opt-list" id="p1OptList">
         <button class="opt-btn" data-opt="A">
           <span class="opt-mark"></span><span>유력한 후보였던 <b>쿠빌라이</b>를 찾아간다</span>
-          <span class="opt-flag real">실제 역사</span>
         </button>
         <button class="opt-btn" data-opt="B">
           <span class="opt-mark"></span><span>경쟁자였던 <b>아리크부카</b> 진영을 찾아간다</span>
-          <span class="opt-flag">만약에 (가상)</span>
         </button>
       </div>
       <button class="btn btn-seal" id="p1ConfirmBtn" disabled>선택 확인하기</button>
@@ -381,16 +401,14 @@
   <!-- 화면: 2부 분기 선택 -->
   <div class="screen" id="screen-p2-branch">
     <div class="night-card">
-      <span class="virtual-tag">⏸ 갈림길 · 가상 시나리오 포함</span>
+      <span class="virtual-tag">⏸ 갈림길</span>
       <h2>삼별초는 어떻게 해야 할까?</h2>
       <div class="opt-list" id="p2OptList">
         <button class="opt-btn" data-opt="A">
           <span class="opt-mark"></span><span>환도 명령에 <b>따른다</b></span>
-          <span class="opt-flag">만약에 (가상)</span>
         </button>
         <button class="opt-btn" data-opt="B">
           <span class="opt-mark"></span><span><b>봉기</b>한다</span>
-          <span class="opt-flag real">실제 역사</span>
         </button>
       </div>
       <button class="btn btn-seal" id="p2ConfirmBtn" disabled>선택 확인하기</button>
@@ -416,11 +434,25 @@
     </div>
 
     <div class="card">
+      <button class="hint-toggle" id="reviewToggle">📖 사료 다시 보기</button>
+      <div class="review-accordion" id="reviewAccordion" style="display:none;"></div>
+    </div>
+
+    <div class="card" id="priorEndingCard" style="display:none;">
+      <span class="badge-chip">지난 시간</span>
+      <h2>1차시에 네가 쓴 판단</h2>
+      <div class="prior-card">
+        <div class="prior-text" id="priorEndingText"></div>
+      </div>
+    </div>
+
+    <div class="card">
       <span class="badge-chip">마무리 글쓰기</span>
-      <h2>왜 그렇게 판단했어?</h2>
-      <p class="sub">실제 역사와 다른 선택을 했다면, 무엇이 아쉬웠는지도 함께 써보자.</p>
-      <textarea id="endingInput" placeholder="예: 나는 봉기를 선택했는데, 실제로도 삼별초는 봉기했다. 왜냐하면..."></textarea>
-      <div id="priorCompareArea"></div>
+      <h2>최씨정권의 강화도 천도, 지금 어떻게 평가할래?</h2>
+      <p class="sub">1차시 판단, 오늘 본 사료, 방금 한 시뮬레이션까지 다 겪어봤어.
+      생각이 바뀌었다면 뭐 때문에 바뀌었는지도 써보자.</p>
+      <textarea id="finalInput" placeholder="예: 1차시엔 항전 의지라고 봤는데, 오늘 활동을 하고 나니..."></textarea>
+      <div class="charcount" id="finalCharCount">0자 (100~150자 권장)</div>
       <button class="btn btn-primary" id="submitEndingBtn" disabled>제출하기</button>
     </div>
   </div>
@@ -464,6 +496,15 @@ const CONFIG = {
  * - 삼별초 평가(민족적 항쟁 vs 자기 이해관계)는 학계에서 해석이 갈리는 지점 — 정답 제시 없이
  *   양쪽 관점을 모두 제시함.
  * - 실존 인물 1인칭 서술 금지 원칙에 따라, 두 파트 모두 "상상으로 만든 가상의 관찰자" 시점을 사용.
+ *
+ * v2 수정 (실사용 피드백 반영):
+ * - 1부·2부 갈림길 선택 화면에서 "실제 역사/가상" 뱃지 제거 — 선택 전에 정답을 알려주던 문제 수정.
+ *   결과 비교 화면(각 결과 카드, 엔딩 비교표)에는 그대로 유지.
+ * - 갈림길 설명문·상단 부제 글밥 축소.
+ * - 마무리 글쓰기를 "왜 그렇게 판단했어?" + "1차시 비교(선택)" 2개 입력창에서 통합 질문 1개로 교체.
+ *   활동1(사료 탐구)의 "다시 판단하기" 글쓰기가 삭제되면서, 종합 판단은 이 화면 한 곳에서만 씀.
+ * - 엔딩 화면에 "사료 다시 보기"(활동1과 동일한 4개 사료 아코디언)와 "1차시에 네가 쓴 판단" 인용
+ *   카드를 마무리 글쓰기 바로 위에 배치 — 비교할 근거가 눈에 보이는 상태에서 쓰도록 함.
  */
 
 /* ── 강화 조건 데이터 ── */
@@ -472,6 +513,22 @@ const CONDITIONS = [
   { id:"c2", label:"몽골 군대는 가을에 물러가고, 고려에 계속 머무르지 않는다" },
   { id:"c3", label:"다루가치(감시관)를 다시 불러들인다(귀환)" },
   { id:"c4", label:"개경으로 돌아가는 건(환도) 고려가 힘 닿는 대로 한다" }
+];
+
+/* ── 사료 다시 보기용 데이터 (활동1 · ganghwa 웹앱과 동일한 4개 사료) ── */
+const REVIEW_SOURCES = [
+  { num:"①", tag:"red", title:"가장 먼저 옮겨진 것",
+    quote:"천도가 결정된 그날, 최우는 관리들의 녹봉(월급)으로 쓸 쌀을 실어 나르던 수레 100여 채를 빼앗아, 자기 집안의 재산을 가장 먼저 강화도로 옮겼어.",
+    cite:"출처: 우리역사넷 인물 「최우」 / 한국민족문화대백과사전 「최우」" },
+  { num:"②", tag:"teal", title:"버틸 수 있었던 이유",
+    quote:"강화도는 농사지을 땅이 넉넉해 식량 걱정이 적었고, 물살이 거세어 해전에 약한 몽골군이 쉽게 접근하지 못하는 곳이었어.",
+    cite:"출처: 역사② 교과서 93쪽" },
+  { num:"③", tag:"red", title:"산성으로 피신한 사람들",
+    quote:"전쟁을 피해 공주(公州) 산성으로 들어간 백성 중에는 굶어 죽는 사람이 많았고, 어떤 이는 함께 데려갈 수 없었던 아이를 나무에 묶어 놓은 채 떠나야 했어.",
+    cite:"출처: 『고려사절요』 권17, 고종 42년 3월" },
+  { num:"④", tag:"teal", title:"40년을 버틴 결과",
+    quote:"이후 고려는 40여 년간 몽골에 맞서 싸웠고, 훗날 태자(원종)는 몽골과 협상해 고려의 독립과 풍속을 유지하는 조건으로 강화를 맺었어.",
+    cite:"출처: 역사② 교과서 93~94쪽" }
 ];
 
 /* ── 상태 ── */
@@ -730,7 +787,7 @@ function renderP2Result(choice){
 document.getElementById("toEndingBtn").addEventListener("click", () => {
   setObserverBanner(false);
   renderCompareTable();
-  renderPriorCompareArea();
+  renderPriorEndingCard();
   showScreen("screen-ending");
 });
 
@@ -751,34 +808,66 @@ function renderCompareTable(){
   `;
 }
 
-function renderPriorCompareArea(){
-  const host = document.getElementById("priorCompareArea");
-  if (PRIOR_REFLECTION) {
-    host.innerHTML = `
-      <label style="margin-top:16px;">1차시 판단이랑 비교해서 생각이 바뀐 점 있어? (선택)</label>
-      <textarea id="priorCompareInput" placeholder="바뀐 점이 없다면 안 써도 괜찮아요"></textarea>
-    `;
+/* ── 엔딩: 1차시 판단 인용 카드 (실제 기록이 있으면 그걸, 없으면 도입에서 대신 쓴 메모를 보여줌) ── */
+function renderPriorEndingCard(){
+  const priorText = PRIOR_REFLECTION || priorFallbackText;
+  const card = document.getElementById("priorEndingCard");
+  if (priorText) {
+    document.getElementById("priorEndingText").textContent = priorText;
+    card.style.display = "block";
   } else {
-    host.innerHTML = "";
+    card.style.display = "none";
   }
 }
 
-/* ── 최종 제출 ── */
-const endingInput = document.getElementById("endingInput");
+/* ── 엔딩: 사료 다시 보기 아코디언 (①~④ 전체, 기본 접힘 · 활동1과 동일 컴포넌트) ── */
+function renderReviewAccordion(){
+  const host = document.getElementById("reviewAccordion");
+  host.innerHTML = REVIEW_SOURCES.map((s) => `
+    <div class="review-item">
+      <div class="review-item-head">
+        <span class="tag ${s.tag}">사료 ${s.num}</span>
+        <span class="ttl">${escapeHtml(s.title)}</span>
+        <span class="chev">▾</span>
+      </div>
+      <div class="review-item-body">
+        <p class="quote">${escapeHtml(s.quote)}</p>
+        <div class="cite">${escapeHtml(s.cite)}</div>
+      </div>
+    </div>
+  `).join("");
+  host.querySelectorAll(".review-item-head").forEach(head => {
+    head.addEventListener("click", () => {
+      head.closest(".review-item").classList.toggle("open");
+    });
+  });
+}
+document.getElementById("reviewToggle").addEventListener("click", () => {
+  const acc = document.getElementById("reviewAccordion");
+  const willShow = acc.style.display === "none";
+  if (willShow && !acc.dataset.built) {
+    renderReviewAccordion();
+    acc.dataset.built = "1";
+  }
+  acc.style.display = willShow ? "block" : "none";
+});
+
+/* ── 최종 제출 (마무리 글쓰기 통합 질문 1개) ── */
+const finalInput = document.getElementById("finalInput");
+const finalCharCount = document.getElementById("finalCharCount");
 const submitEndingBtn = document.getElementById("submitEndingBtn");
-endingInput.addEventListener("input", () => {
-  submitEndingBtn.disabled = endingInput.value.trim().length < 40;
+finalInput.addEventListener("input", () => {
+  const len = finalInput.value.trim().length;
+  finalCharCount.textContent = `${len}자 (100~150자 권장)`;
+  finalCharCount.className = "charcount" + (len >= 100 && len <= 150 ? " ok" : (len > 150 ? " over" : ""));
+  submitEndingBtn.disabled = len < 50;
 });
 
 submitEndingBtn.addEventListener("click", async () => {
   submitEndingBtn.disabled = true;
   submitEndingBtn.textContent = "제출 중...";
 
-  const mainReflection = endingInput.value.trim();
-  const compareEl = document.getElementById("priorCompareInput");
-  const compareText = compareEl ? compareEl.value.trim() : "";
-  const reflection = mainReflection + (compareText ? `\n\n[1차시 판단과 비교] ${compareText}` : "");
-
+  const reflection = finalInput.value.trim();
   const choiceSummary = `${p1Branch === "A" ? "쿠빌라이 선택" : "아리크부카 선택(가상)"} / ${p2Branch === "B" ? "봉기 선택" : "환도 순응 선택(가상)"}`;
   const diffSummary = `원종 분기: ${p1Branch === "A" ? "실제 역사와 동일" : "실제 역사와 다름(가상)"} · 삼별초 분기: ${p2Branch === "B" ? "실제 역사와 동일" : "실제 역사와 다름(가상)"}`;
 
