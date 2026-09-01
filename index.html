@@ -461,6 +461,7 @@
       <textarea id="finalInput" placeholder="예: 1차시엔 항전 의지라고 봤는데, 오늘 활동을 하고 나니..."></textarea>
       <div class="charcount" id="finalCharCount">0자 (100~150자 권장)</div>
       <button class="btn btn-primary" id="submitEndingBtn" disabled>제출하기</button>
+      <p class="sub" id="submitError" style="color:#c0392b; text-align:center; min-height:18px;"></p>
     </div>
   </div>
 
@@ -945,13 +946,25 @@ submitEndingBtn.addEventListener("click", async () => {
     reflection: reflection
   };
 
+  const submitErrorEl = document.getElementById("submitError");
+  if (submitErrorEl) submitErrorEl.textContent = "";
+
   if (!PREVIEW) {
     try {
       if (CONFIG.SHEET_WEBAPP_URL && CONFIG.SHEET_WEBAPP_URL.indexOf("http") === 0) {
-        await fetch(CONFIG.SHEET_WEBAPP_URL, { method:"POST", body: JSON.stringify(payload) });
+        const res = await fetch(CONFIG.SHEET_WEBAPP_URL, { method:"POST", body: JSON.stringify(payload) });
+        if (!res.ok) throw new Error(`서버 응답 오류 (status ${res.status})`);
+        const json = await res.json();
+        if (!json || json.result !== "success") {
+          throw new Error((json && json.message) || "백엔드가 저장 실패를 반환함");
+        }
       }
     } catch (err) {
       console.log("전송 실패(콘솔 확인용):", err);
+      submitEndingBtn.disabled = false;
+      submitEndingBtn.textContent = "다시 제출하기";
+      if (submitErrorEl) submitErrorEl.textContent = "기록 저장에 실패했어. 인터넷 연결을 확인하고 다시 눌러줘!";
+      return; // 저장이 확인 안 됐으니 결과 화면을 보여주지 않는다.
     }
   } else {
     console.log("[미리보기] 실제 전송 안 함:", payload);
