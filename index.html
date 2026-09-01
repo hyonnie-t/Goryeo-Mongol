@@ -484,12 +484,11 @@ const CONFIG = {
   SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbyXSjCfWY_HiZFqW_OBR-FQDoIfF1z_STqyKWUI31MacHeY3u7hbirFSFDvW-5yuUHaJQ/exec",
   GAME_NAME: "몽골2차시_선택시뮬레이션",
   LESSON1_GAME_NAME: "choe_regime_judgment",
-  // TODO(효니 확인 필요): 2차시 활동1(사료 탐구 · 즉답 질문) 웹앱이 백엔드에 제출할 때 쓰는
-  // 실제 activityId 문자열로 교체할 것. 활동1이 choicesJson에 { src1, src2, src3, src4 } 형태로
-  // 사료별 응답을 담아 제출한다고 가정하고 아래 fetchPriorAndTodayData()를 작성했음 — 활동1
-  // 웹앱의 실제 제출 필드명과 다르면 이 값에 맞춰 fetchPriorAndTodayData()도 함께 수정해야 함.
-  // 매칭되는 기록이 없으면 "사료 다시 보기"는 원문만 보여주던 기존 방식으로 자동 대체됨(안전한 폴백).
-  TODAY_SOURCE_GAME_NAME: "ganghwa_source_reading"
+  // 2차시 활동1(사료 탐구 · 즉답 질문, ganghwa 레포) 웹앱이 백엔드에 제출하는 실제 activityId.
+  // 그 웹앱은 choicesJson에 { choice1, choice2, response3, choice4 } 형태로 사료①~④ 응답을 담아
+  // 제출함(reflection 필드에는 response3와 동일한 값이 별도로 들어있음) — fetchPriorAndTodayData()의
+  // 필드 매핑도 이 구조에 맞춰져 있음.
+  TODAY_SOURCE_GAME_NAME: "몽골2차시_사료탐구"
   // 교사용 제출 현황은 통합 포털 대시보드에서 백엔드(teacherGet_)를 직접 호출해서 보여줌 —
   // 이 웹앱 안에는 교사 토큰을 넣지 않음.
 };
@@ -629,11 +628,12 @@ async function fetchPriorAndTodayData(sid, name){
       let parsed = {};
       try { parsed = todaySource.choicesJson ? JSON.parse(todaySource.choicesJson) : {}; } catch(e) { parsed = {}; }
       const free = todaySource.reflection && String(todaySource.reflection).trim();
+      // ganghwa(활동1) 제출 필드명: choice1/choice2/response3/choice4
       const cand = {
-        src1: parsed.src1 || null,
-        src2: parsed.src2 || null,
-        src3: free || parsed.src3 || null,
-        src4: parsed.src4 || null
+        src1: parsed.choice1 || null,
+        src2: parsed.choice2 || null,
+        src3: free || parsed.response3 || null,
+        src4: parsed.choice4 || null
       };
       if (cand.src1 || cand.src2 || cand.src3 || cand.src4) sourceAnswers = cand;
     }
