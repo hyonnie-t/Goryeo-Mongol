@@ -237,6 +237,10 @@
   .review-item.open .review-item-body{display:block;}
   .review-item-body .quote{font-family:"Noto Serif KR",serif; font-size:14.5px; line-height:1.8; color:var(--ink);}
   .review-item-body .cite{font-size:12px; color:var(--sub); margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);}
+  .review-item-body .my-answer{
+    font-size:13.5px; font-weight:700; color:var(--ochre-dark); background:var(--ochre-pale);
+    border-radius:10px; padding:10px 12px; margin-top:10px; line-height:1.6;
+  }
 
   .preview-banner{
     background:var(--seal); color:#fff; text-align:center; font-size:13px; font-weight:800;
@@ -451,6 +455,9 @@
       <h2>최씨정권의 강화도 천도, 지금 어떻게 평가할래?</h2>
       <p class="sub">1차시 판단, 오늘 본 사료, 방금 한 시뮬레이션까지 다 겪어봤어.
       생각이 바뀌었다면 뭐 때문에 바뀌었는지도 써보자.</p>
+      <button class="hint-toggle" id="finalHintToggle">💡 막막하면 힌트 보기</button>
+      <div class="hint-box" id="finalHintBox">1차시에 쓴 판단, 오늘 사료에서 남긴 답, 시뮬레이션에서
+      고른 선택을 하나씩 떠올려보면서 시작해도 좋아.</div>
       <textarea id="finalInput" placeholder="예: 1차시엔 항전 의지라고 봤는데, 오늘 활동을 하고 나니..."></textarea>
       <div class="charcount" id="finalCharCount">0자 (100~150자 권장)</div>
       <button class="btn btn-primary" id="submitEndingBtn" disabled>제출하기</button>
@@ -476,7 +483,13 @@
 const CONFIG = {
   SHEET_WEBAPP_URL: "https://script.google.com/macros/s/AKfycbyXSjCfWY_HiZFqW_OBR-FQDoIfF1z_STqyKWUI31MacHeY3u7hbirFSFDvW-5yuUHaJQ/exec",
   GAME_NAME: "몽골2차시_선택시뮬레이션",
-  LESSON1_GAME_NAME: "choe_regime_judgment"
+  LESSON1_GAME_NAME: "choe_regime_judgment",
+  // TODO(효니 확인 필요): 2차시 활동1(사료 탐구 · 즉답 질문) 웹앱이 백엔드에 제출할 때 쓰는
+  // 실제 activityId 문자열로 교체할 것. 활동1이 choicesJson에 { src1, src2, src3, src4 } 형태로
+  // 사료별 응답을 담아 제출한다고 가정하고 아래 fetchPriorAndTodayData()를 작성했음 — 활동1
+  // 웹앱의 실제 제출 필드명과 다르면 이 값에 맞춰 fetchPriorAndTodayData()도 함께 수정해야 함.
+  // 매칭되는 기록이 없으면 "사료 다시 보기"는 원문만 보여주던 기존 방식으로 자동 대체됨(안전한 폴백).
+  TODAY_SOURCE_GAME_NAME: "ganghwa_source_reading"
   // 교사용 제출 현황은 통합 포털 대시보드에서 백엔드(teacherGet_)를 직접 호출해서 보여줌 —
   // 이 웹앱 안에는 교사 토큰을 넣지 않음.
 };
@@ -507,26 +520,34 @@ const CONFIG = {
  *   카드를 마무리 글쓰기 바로 위에 배치 — 비교할 근거가 눈에 보이는 상태에서 쓰도록 함.
  */
 
-/* ── 강화 조건 데이터 ── */
+/* ── 강화 조건 데이터 ──
+ * v3 수정: c3(다루가치) 문구를 "귀환(다시 불러들인다)"에서 "철수(몽골로 돌려보낸다)"로 명확화 —
+ *   기존 문구는 "다시 데려온다"로 오해될 여지가 있었음. 실제 의미는 몽골로의 철수.
+ *   c5(몽골 조정 경유 조건)를 추가해 "간섭" 성격 조건과의 균형을 맞춤(교과서 원문 조건, 역사②
+ *   교과서 94쪽 — 정확한 출판사/쪽수는 효니 확인 필요). 방향은 몽골→고려: 몽골 조정이 보낸
+ *   사람만 고려 왕래를 허용하고, 그 밖의 왕래는 금지한다는 뜻(이전 버전의 반대 방향 오류 수정). */
 const CONDITIONS = [
   { id:"c1", label:"고려의 복식(옷차림)과 풍속은 그대로 유지한다" },
   { id:"c2", label:"몽골 군대는 가을에 물러가고, 고려에 계속 머무르지 않는다" },
-  { id:"c3", label:"다루가치(감시관)를 다시 불러들인다(귀환)" },
-  { id:"c4", label:"개경으로 돌아가는 건(환도) 고려가 힘 닿는 대로 한다" }
+  { id:"c3", label:"고려에 설치된 다루가치(감시관)를 몽골로 돌려보낸다(철수)" },
+  { id:"c4", label:"개경으로 돌아가는 건(환도) 고려가 힘 닿는 대로 한다" },
+  { id:"c5", label:"고려를 오가는 사람은 몽골 조정이 보낸 사람만 허용하고, 그 밖의 왕래는 모두 금한다" }
 ];
 
-/* ── 사료 다시 보기용 데이터 (활동1 · ganghwa 웹앱과 동일한 4개 사료) ── */
+/* ── 사료 다시 보기용 데이터 (활동1 · ganghwa 웹앱과 동일한 4개 사료) ──
+ * v3 추가: key/type 필드는 오늘(2차시 활동1) 즉답 응답을 사료별로 매칭하기 위한 식별자.
+ *   type "choice"는 객관식(그때 내 판단: "OO" 선택함), "free"는 자유 서술형(문장 그대로 노출). */
 const REVIEW_SOURCES = [
-  { num:"①", tag:"red", title:"가장 먼저 옮겨진 것",
+  { num:"①", key:"src1", type:"choice", tag:"red", title:"가장 먼저 옮겨진 것",
     quote:"천도가 결정된 그날, 최우는 관리들의 녹봉(월급)으로 쓸 쌀을 실어 나르던 수레 100여 채를 빼앗아, 자기 집안의 재산을 가장 먼저 강화도로 옮겼어.",
     cite:"출처: 우리역사넷 인물 「최우」 / 한국민족문화대백과사전 「최우」" },
-  { num:"②", tag:"teal", title:"버틸 수 있었던 이유",
+  { num:"②", key:"src2", type:"choice", tag:"teal", title:"버틸 수 있었던 이유",
     quote:"강화도는 농사지을 땅이 넉넉해 식량 걱정이 적었고, 물살이 거세어 해전에 약한 몽골군이 쉽게 접근하지 못하는 곳이었어.",
     cite:"출처: 역사② 교과서 93쪽" },
-  { num:"③", tag:"red", title:"산성으로 피신한 사람들",
+  { num:"③", key:"src3", type:"free", tag:"red", title:"산성으로 피신한 사람들",
     quote:"전쟁을 피해 공주(公州) 산성으로 들어간 백성 중에는 굶어 죽는 사람이 많았고, 어떤 이는 함께 데려갈 수 없었던 아이를 나무에 묶어 놓은 채 떠나야 했어.",
     cite:"출처: 『고려사절요』 권17, 고종 42년 3월" },
-  { num:"④", tag:"teal", title:"40년을 버틴 결과",
+  { num:"④", key:"src4", type:"choice", tag:"teal", title:"40년을 버틴 결과",
     quote:"이후 고려는 40여 년간 몽골에 맞서 싸웠고, 훗날 태자(원종)는 몽골과 협상해 고려의 독립과 풍속을 유지하는 조건으로 강화를 맺었어.",
     cite:"출처: 역사② 교과서 93~94쪽" }
 ];
@@ -535,6 +556,7 @@ const REVIEW_SOURCES = [
 let studentId = "", studentName = "";
 let PREVIEW = false;
 let PRIOR_REFLECTION = null;
+let TODAY_SOURCE_ANSWERS = null; // { src1, src2, src3, src4 } | null — 오늘 사료 즉답 응답(있으면)
 let priorFallbackText = "";
 let p1Branch = null;   // "A" | "B"
 let p2Branch = null;   // "A" | "B"
@@ -569,7 +591,9 @@ startBtn.addEventListener("click", async () => {
   startBtn.disabled = true;
   startBtn.textContent = "불러오는 중...";
 
-  PRIOR_REFLECTION = await fetchPriorReflection(studentId, studentName);
+  const fetched = await fetchPriorAndTodayData(studentId, studentName);
+  PRIOR_REFLECTION = fetched.reflection;
+  TODAY_SOURCE_ANSWERS = fetched.sourceAnswers;
   renderPriorArea();
 
   startBtn.disabled = false;
@@ -578,24 +602,45 @@ startBtn.addEventListener("click", async () => {
   showScreen("screen-intro");
 });
 
-/* 1차시(choe_regime_judgment) 판단 불러오기 — 통합 포털 백엔드의 학생용 조회(mode=student)를
- * 그대로 재사용. 이 엔드포인트는 학번+이름만으로 조회 가능한 학생 본인 기록 조회용이라
- * 별도 백엔드 수정 없이 재사용 가능함 (history26 index.html의 STUDENT_DATA.activities와 동일 구조). */
-async function fetchPriorReflection(sid, name){
-  if (PREVIEW) return null;
+/* 1차시(choe_regime_judgment) 판단 + 오늘(2차시 활동1) 사료 즉답 응답 불러오기 — 통합 포털
+ * 백엔드의 학생용 조회(mode=student)를 그대로 재사용. 이 엔드포인트는 학번+이름만으로 조회
+ * 가능한 학생 본인 기록 조회용이라 별도 백엔드 수정 없이 재사용 가능함(history26 index.html의
+ * STUDENT_DATA.activities와 동일 구조). 한 번의 호출로 두 활동 기록을 모두 찾는다. */
+async function fetchPriorAndTodayData(sid, name){
+  if (PREVIEW) return { reflection:null, sourceAnswers:null };
   try{
     const url = CONFIG.SHEET_WEBAPP_URL
       + "?mode=student&studentId=" + encodeURIComponent(sid)
       + "&name=" + encodeURIComponent(name);
     const res = await fetch(url);
     const data = await res.json();
-    if (data.result !== "success" || !Array.isArray(data.activities)) return null;
-    const found = data.activities.find(a =>
+    if (data.result !== "success" || !Array.isArray(data.activities)) {
+      return { reflection:null, sourceAnswers:null };
+    }
+
+    const lesson1 = data.activities.find(a =>
       String(a.activityId) === CONFIG.LESSON1_GAME_NAME && a.reflection && String(a.reflection).trim()
     );
-    return found ? String(found.reflection).trim() : null;
+    const reflection = lesson1 ? String(lesson1.reflection).trim() : null;
+
+    const todaySource = data.activities.find(a => String(a.activityId) === CONFIG.TODAY_SOURCE_GAME_NAME);
+    let sourceAnswers = null;
+    if (todaySource) {
+      let parsed = {};
+      try { parsed = todaySource.choicesJson ? JSON.parse(todaySource.choicesJson) : {}; } catch(e) { parsed = {}; }
+      const free = todaySource.reflection && String(todaySource.reflection).trim();
+      const cand = {
+        src1: parsed.src1 || null,
+        src2: parsed.src2 || null,
+        src3: free || parsed.src3 || null,
+        src4: parsed.src4 || null
+      };
+      if (cand.src1 || cand.src2 || cand.src3 || cand.src4) sourceAnswers = cand;
+    }
+
+    return { reflection, sourceAnswers };
   }catch(e){
-    return null;
+    return { reflection:null, sourceAnswers:null };
   }
 }
 
@@ -820,10 +865,17 @@ function renderPriorEndingCard(){
   }
 }
 
-/* ── 엔딩: 사료 다시 보기 아코디언 (①~④ 전체, 기본 접힘 · 활동1과 동일 컴포넌트) ── */
+/* ── 엔딩: 사료 다시 보기 아코디언 (①~④ 전체, 기본 접힘 · 활동1과 동일 컴포넌트)
+ * v3 추가: 원문 아래에 "그때 내 판단"(오늘 즉답 응답)을 함께 표시 — 기록이 없으면(TODAY_SOURCE_ANSWERS
+ * 미확보) 원문만 보여주던 기존 방식 그대로 유지됨(안전한 폴백). ── */
 function renderReviewAccordion(){
   const host = document.getElementById("reviewAccordion");
-  host.innerHTML = REVIEW_SOURCES.map((s) => `
+  host.innerHTML = REVIEW_SOURCES.map((s) => {
+    const ans = TODAY_SOURCE_ANSWERS && TODAY_SOURCE_ANSWERS[s.key];
+    const answerHtml = ans
+      ? `<div class="my-answer">그때 내 판단: "${escapeHtml(ans)}"${s.type === "choice" ? " 선택함" : ""}</div>`
+      : "";
+    return `
     <div class="review-item">
       <div class="review-item-head">
         <span class="tag ${s.tag}">사료 ${s.num}</span>
@@ -833,9 +885,11 @@ function renderReviewAccordion(){
       <div class="review-item-body">
         <p class="quote">${escapeHtml(s.quote)}</p>
         <div class="cite">${escapeHtml(s.cite)}</div>
+        ${answerHtml}
       </div>
     </div>
-  `).join("");
+  `;
+  }).join("");
   host.querySelectorAll(".review-item-head").forEach(head => {
     head.addEventListener("click", () => {
       head.closest(".review-item").classList.toggle("open");
@@ -853,6 +907,10 @@ document.getElementById("reviewToggle").addEventListener("click", () => {
 });
 
 /* ── 최종 제출 (마무리 글쓰기 통합 질문 1개) ── */
+document.getElementById("finalHintToggle").addEventListener("click", () => {
+  document.getElementById("finalHintBox").classList.toggle("open");
+});
+
 const finalInput = document.getElementById("finalInput");
 const finalCharCount = document.getElementById("finalCharCount");
 const submitEndingBtn = document.getElementById("submitEndingBtn");
